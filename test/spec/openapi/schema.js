@@ -1084,6 +1084,58 @@ test('support callbacks', async () => {
                     }
                   }
                 }
+              },
+              '{$request.body#/anotherUrl}': {
+                post: {
+                  requestBody: {
+                    content: {
+                      'application/json': {
+                        schema: {
+                          type: 'object',
+                          properties: {
+                            message: {
+                              type: 'string',
+                              example: 'Some event happened'
+                            }
+                          },
+                          required: [
+                            'message'
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  responses: {
+                    200: {
+                      description: 'Success'
+                    }
+                  }
+                },
+                put: {
+                  requestBody: {
+                    content: {
+                      'application/json': {
+                        schema: {
+                          type: 'object',
+                          properties: {
+                            message: {
+                              type: 'string',
+                              example: 'Some event happened'
+                            }
+                          },
+                          required: [
+                            'message'
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  responses: {
+                    200: {
+                      description: 'Success'
+                    }
+                  }
+                }
               }
             },
             myOtherEvent: {
@@ -1109,14 +1161,26 @@ test('support callbacks', async () => {
 
     const openapiObject = fastify.swagger()
 
-    console.log(openapiObject)
-
     t.equal(typeof openapiObject, 'object')
     t.equal(typeof openapiObject.paths['/subscribe'].post.callbacks, 'object')
 
     const definedPath = openapiObject.paths['/subscribe'].post.callbacks
 
     t.strictSame(definedPath.myEvent['{$request.body#/callbackUrl}'].post.requestBody.content['application/json'].schema.properties, {
+      message: {
+        type: 'string',
+        example: 'Some event happened'
+      }
+    })
+
+    t.strictSame(definedPath.myEvent['{$request.body#/anotherUrl}'].post.requestBody.content['application/json'].schema.properties, {
+      message: {
+        type: 'string',
+        example: 'Some event happened'
+      }
+    })
+
+    t.strictSame(definedPath.myEvent['{$request.body#/anotherUrl}'].put.requestBody.content['application/json'].schema.properties, {
       message: {
         type: 'string',
         example: 'Some event happened'
@@ -1195,8 +1259,6 @@ test('support callbacks', async () => {
     t.equal(typeof openapiObject.paths['/subscribe'].post.callbacks, 'object')
 
     const definedPath = openapiObject.paths['/subscribe'].post
-
-    console.log(definedPath.callbacks.myEvent['{$request.body#/callbackUrl}'].post.responses)
 
     t.equal(definedPath.callbacks.myEvent['{$request.body#/callbackUrl}'].post.responses['2XX'].description, 'Default Response')
 
